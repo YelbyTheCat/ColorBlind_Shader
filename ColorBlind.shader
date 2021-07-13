@@ -1,14 +1,12 @@
-﻿Shader "yelby/ColorBlind"
-{
+Shader "yelby/ColorBlind"
+{ //1.2
 	Properties
 	{
 		_ColorBlindMode("Mode", Range (0,3)) = 1
-		_MeshRadius ("Mesh Radius", float) = 1
-		[Toggle(EnableShader)]
-		_EnableShader("Enable", Float) = 1
-		_CRed("Red", Vector)		= (1.0,1.0,1.0)
-		_CGreen("Green", Vector)	= (1.0,1.0,1.0)
-		_CBlue("Blue", Vector)		= (1.0,1.0,1.0)
+		_MeshRadius ("Mesh Radius", float) = 0.25
+		_CRed("Red", Vector)		= (100.0,000.0,000.0)
+		_CGreen("Green", Vector)	= (000.0,100.0,000.0)
+		_CBlue("Blue", Vector)		= (000.0,000.0,100.0)
 	}
 	SubShader
 	{
@@ -29,7 +27,7 @@
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
-			#pragma shader_feature EnableShader
+			//#pragma shader_feature
 			#include "UnityCG.cginc"
 
 			struct v2f
@@ -53,13 +51,12 @@
 
 				float dist = length(camPos - worldPivot);
 
-				//If you're past a distance you can't see
+				//If you're past a distance you can't see it
 				if (dist > _MeshRadius/*0.25*/)
 				{
 					v.vertex.xyz = 0.0;
 				}
 					
-
 				// use UnityObjectToClipPos from UnityCG.cginc to calculate 
 				// the clip-space of the vertex
 				o.pos = UnityObjectToClipPos(v.vertex);
@@ -79,14 +76,16 @@
 
 			half4 frag(v2f i) : SV_Target
 			{
+				//Grab everything
 				half4 bgcolor = tex2Dproj(_BackgroundTexture, i.grabPos);
 
-				float red;
-				float green;
-				float blue;
-				int divide = 100;
+				//Start up your variables
+				float red	= 0.0;
+				float green = 0.0;
+				float blue	= 0.0;
+				int divide	= 100;
 
-				int colorMode = _ColorBlindMode;
+				int colorMode = _ColorBlindMode; //Int for click click
 
 				switch (colorMode) 
 				{
@@ -116,11 +115,10 @@
 						break;
 				}
 
-				#ifdef EnableShader
+				//Conversions
 				bgcolor.r = red;
 				bgcolor.g = green;
 				bgcolor.b = blue;
-				#endif
 
 				return bgcolor;
 			}
